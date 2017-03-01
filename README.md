@@ -1,5 +1,5 @@
 # Spark Tasks
-This aplication best run a a MapR platform (5.2) with Saprk 2.0. and MapRDB (HBase)
+This application is mostly compatible with a MapR platform (5.2) with Saprk 2.0. and MapRDB (HBase)
 -First, create a directory name "files" on HDFS and copy sample files to it. 
 //go to root project at CSVLoader
 $ Hadop fs -mkdir /files
