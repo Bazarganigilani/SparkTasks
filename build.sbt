@@ -1,4 +1,4 @@
-name := "Asef"
+name := "SparkTasks"
 
 version := "1.0"
 
