@@ -1,0 +1,4 @@
+[0m[[0mdebug[0m] [0mCopy resource mappings: [0m
+[0m[[0mdebug[0m] [0m	(/home/mapr/CSVLoader/src/main/resources/Flight_Data.csv,/home/mapr/CSVLoader/target/scala-2.11/classes/Flight_Data.csv)[0m
+[0m[[0mdebug[0m] [0m	(/home/mapr/CSVLoader/src/main/resources/Flight_DataS.csv,/home/mapr/CSVLoader/target/scala-2.11/classes/Flight_DataS.csv)[0m
+[0m[[0mdebug[0m] [0m	(/home/mapr/CSVLoader/src/main/resources/Sample_CSV.csv,/home/mapr/CSVLoader/target/scala-2.11/classes/Sample_CSV.csv)[0m
