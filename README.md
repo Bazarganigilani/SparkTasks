@@ -1,7 +1,8 @@
 # Spark Tasks
 This aplication best run a a MapR platform (5.2) with Saprk 2.0. and MapRDB (HBase)
--First, copy sample files to HDFS. 
+-First, create a directory name "files" on HDFS and copy sample files to it. 
 //go to root project at CSVLoader
+$ Hadop fs -mkdir /files
 $ Hadoop fs -put src/main/resources/*.csv /files
 
 -For task 1, first run the CSV laoder, it simply load the CSV sample file to a HBase tale
