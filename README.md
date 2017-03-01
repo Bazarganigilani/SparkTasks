@@ -15,4 +15,4 @@ For the second task run the application
 /opt/mapr/spark/spark-2.0.1/bin/spark-submit --class "AirportHandler" --master local[2] target/scala-2.11/sparktasks_2.11-1.0.jar
 
 The project can be compiled from source using sbt
-#sbt package
+$ sbt package
