@@ -21,17 +21,16 @@ object WordCounter {
     val sc = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
+    //Read the table from Hbase
     val hbaseConfig = HBaseConfiguration.create()
     hbaseConfig.set(TableInputFormat.INPUT_TABLE, tableInputName)
-
     val hBaseRDD = sc.newAPIHadoopRDD(hbaseConfig, classOf[TableInputFormat], classOf[ImmutableBytesWritable], classOf[Result])
     println("Number of Records found : " + hBaseRDD.count())
     val resultRDD = hBaseRDD.map(tuple => tuple._2)
 
-    //resultRDD.foreach(println)
 
-    // transform into an RDD of (RowKey, ColumnValue)s , with Time removed from row key
 
+    //Convert the HBase result to a RDD format
     val getStrings=(result:Result)=>{
 
       var rowString=""
@@ -48,17 +47,15 @@ object WordCounter {
           rowString=rowString.concat(stringValue+",")
         else
           rowString=rowString.concat(stringValue+System.lineSeparator())
-
-
       }
       rowString
-
-
     }
 
+    //Populate RDD from HBase and computing the word count
     val wordCounts = resultRDD.map(getStrings).
       flatMap(_.split(",")).map(w=>(w,1)).reduceByKey(_+_)
 
+    //Write (word,count) tuples to HBase using belw put convertor
     val convertToPut=(a: (String,Int)) =>{
       // create a composite row key: sensorid_date time
 
@@ -71,10 +68,8 @@ object WordCounter {
       (new ImmutableBytesWritable(Bytes.toBytes(rowkey)), put)
     }
 
-
-
+    //if table exist first delete its content
     val admin = new HBaseAdmin(hbaseConfig)
-
     if (admin.tableExists(tableOutputName)) {
       admin.deleteTable(tableOutputName)
     }
@@ -89,13 +84,15 @@ object WordCounter {
     jobConfig.setOutputFormat(classOf[TableOutputFormat])
     jobConfig.set(TableOutputFormat.OUTPUT_TABLE, tableOutputName)
 
-    //mappedCSV.map(convertToPut1).saveAsHadoopDataset(jobConfig)
 
+    //Prompt tuple word counts on the screen
     wordCounts.foreach(println)
 
+    //Write to HBase
     wordCounts.map(convertToPut).saveAsHadoopDataset(jobConfig)
 
 
+    //Stop the Spark context
     sc.stop()
 
   }

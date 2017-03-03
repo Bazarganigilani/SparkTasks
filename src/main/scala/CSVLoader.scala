@@ -8,15 +8,16 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 /**
   * Created by Mehdi on 2/25/2017.
-*/
+  */
 
 object CSVLoader {
 
   def main(args: Array[String]) {
 
 
+    //This function is used to convert DF to write to HBase
     def convertToPut(row: org.apache.spark.sql.Row) = {
-      // create a composite row key: sensorid_date time
+
 
       val rowkey = (row.getString(0)+row.getString(1)+row.getString(2)+row.getString(3)).hashCode()
       val put = new Put(Bytes.toBytes(rowkey))
@@ -31,6 +32,7 @@ object CSVLoader {
 
     import org.apache.spark.sql.SparkSession
 
+    //Start the session and context
     val spark = SparkSession
       .builder()
       .master("local[2]")
@@ -39,7 +41,7 @@ object CSVLoader {
       .getOrCreate()
 
 
-    // The schema is encoded in a string
+    // The schema for the sample CSV Sample_CSV.csv
     val schemaString = "servedIMSI,ggsnIPAddress,chargingID,sgsnIPAddress"
 
     // Generate the schema based on the string of schema
@@ -57,20 +59,24 @@ object CSVLoader {
     df.show()
     //df.registerTempTable("test")
 
+    //By default read CSV to a dataframe and then write it to MapRDB tablel '/test1'
     val tableName = "/test1"
     val hbaseConfig = HBaseConfiguration.create()
     val admin = new HBaseAdmin(hbaseConfig)
 
-    if (!admin.tableExists(tableName)) {
+    //if the table exists delte all its contents first
+    if (admin.tableExists(tableName)) {
       admin.deleteTable(tableName)
     }
 
+    //Create the table schema
     val tableDescriptor = new HTableDescriptor(TableName.valueOf(tableName))
     tableDescriptor.addFamily(new HColumnDescriptor(Bytes.toBytes("Column_Familly_1"), 1, org.apache.hadoop.hbase.io.compress.Compression.Algorithm.NONE.toString(), true, true, Int.MaxValue,
       org.apache.hadoop.hbase.regionserver.BloomType.NONE.toString()))
     admin.createTable(tableDescriptor)
 
 
+    //Write the CSV file to HBase
     hbaseConfig.set(TableOutputFormat.OUTPUT_TABLE, tableName)
     val jobConfig : org.apache.hadoop.mapred.JobConf = new org.apache.hadoop.mapred.JobConf(hbaseConfig, this.getClass)
     jobConfig.setOutputFormat(classOf[TableOutputFormat])
